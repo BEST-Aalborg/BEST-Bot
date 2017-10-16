@@ -1,0 +1,13 @@
+[package]
+name = "BEST-Bot"
+version = "0.1.0"
+authors = ["dennis"]
+
+[dependencies]
+slack = "*"
+slack_api = "*"
+toml = "*"
+serde = "*"
+serde_derive = "*"
+serde_json = "*"
+lazy_static = "*"
