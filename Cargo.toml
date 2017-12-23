@@ -1,12 +1,12 @@
 [package]
 name = "BEST-Bot"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["dennis"]
 
 [dependencies]
-slack = "*"
-slack_api = "*"
-toml = "*"
+slack = "0.19.*"
+slack_api = "0.18.*"
+toml = { git = "https://github.com/dvarum12/toml-rs.git" }
 serde = "*"
 serde_derive = "*"
 serde_json = "*"
