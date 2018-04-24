@@ -1,13 +1,18 @@
 [package]
-name = "BEST-Bot"
+name = "best-bot"
 version = "0.1.1"
 authors = ["dennis"]
 
 [dependencies]
-slack = "0.19.*"
-slack_api = "0.18.*"
 toml = { git = "https://github.com/dvarum12/toml-rs.git" }
 serde = "*"
 serde_derive = "*"
 serde_json = "*"
 lazy_static = "*"
+log = "*"
+simple-logging = "*"
+
+easy_toml_config = { git = "https://github.com/BEST-Aalborg/easy_toml_config" }
+template = { git = "https://github.com/BEST-Aalborg/BEST-Bot_template" }
+
+libloading = "*"
