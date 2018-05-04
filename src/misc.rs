@@ -2,11 +2,11 @@ use std::fs::create_dir_all;
 use std::path::PathBuf;
 use std::process::exit;
 
-use config::DEFAULT;
+use config::CONFIG;
 
 /// Creates a list of all plugins present in the plugin folder
 pub fn find_plugins() -> Vec<PathBuf> {
-    let plugin_dir = DEFAULT.plugin_path();
+    let plugin_dir = CONFIG.plugin_path();
     let mut plugins = Vec::new();
 
     // Checks if the path exist and that it is a folder

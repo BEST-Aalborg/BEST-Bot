@@ -7,11 +7,13 @@ use std::path::{PathBuf};
 use std::fs::File;
 use std::env::home_dir;
 
+use log::LevelFilter;
+
 static CONFIG_FILE: &'static str = "default.toml";
 
 
 lazy_static! {
-    pub static ref DEFAULT: Config = {
+    pub static ref CONFIG: Config = {
         set_config_dir(String::from(".config/BEST-Bot"));
         read_config(CONFIG_FILE, config_template())
     };
@@ -33,8 +35,15 @@ pub struct Config {
     plugin_path: Option<String>,
     plugin_config_path: Option<String>,
     pub slack: Slack,
+    log: Option<Log>,
 }
 
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct Log {
+    level: Option<String>,
+    to_file: Option<bool>,
+    log_path: Option<String>,
+}
 
 impl Config {
     /// Get the path for the plugins
@@ -60,6 +69,46 @@ impl Config {
         } else {
             plugin_config_path.push(self.plugin_config_path.clone().unwrap());
             return plugin_config_path;
+        }
+    }
+
+    pub fn log(&self) -> Log {
+
+        if self.log.is_none() {
+            return config_template().log.expect("the variable 'log' was not declared in struct 'Config' in the function 'config_template', fix it");
+        } else {
+            return self.log.clone().unwrap();
+        }
+    }
+}
+
+impl Log {
+    pub fn level(&self) -> LevelFilter {
+        match self.level.as_ref() {
+            Some(level) => match level.to_uppercase().as_ref() {
+                "OFF" => LevelFilter::Off,
+                "ERROR" => LevelFilter::Error,
+                "WARN" => LevelFilter::Warn,
+                "INFO" => LevelFilter::Info,
+                "DEBUG" => LevelFilter::Debug,
+                "TRACE" => LevelFilter::Trace,
+                _ => LevelFilter::Info,
+            }
+            None => LevelFilter::Info,
+        }
+    }
+    pub fn to_file(&self) -> bool {
+        self.to_file.unwrap_or(true)
+    }
+    pub fn path(&self) -> PathBuf {
+        let mut log_path = home_dir().unwrap();
+        if self.log_path.is_none() {
+            log_path.push(get_config_dir());
+            log_path.push("log");
+            return log_path;
+        } else {
+            log_path.push(self.log_path.clone().unwrap());
+            return log_path;
         }
     }
 }
@@ -88,5 +137,10 @@ fn config_template() -> Config {
             api_token: "zzzz-xxxxxxxxxxxx-yyyyyyyyyyyyyyyyyyyyyyyy".to_string(),
             admin_api_token: "zzzz-xxxxxxxxxxx-yyyyyyyyyyy-aaaaaaaaaaaa-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".to_string(),
         },
+        log: Some(Log {
+            level: Some(String::from("info")),
+            to_file: Some(true),
+            log_path: None,
+        }),
     }
 }

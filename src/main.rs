@@ -8,11 +8,10 @@ extern crate libloading as lib;
 #[macro_use]
 extern crate log;
 extern crate simple_logging;
-use log::LevelFilter;
 use std::io;
 
 mod config;
-use config::DEFAULT;
+use config::CONFIG;
 mod misc;
 
 mod plugin_manager;
@@ -23,16 +22,21 @@ use slack_bot::MyHandler;
 use slack_bot::MyEventHandler;
 
 use std::process::exit;
+use std::fs::create_dir_all;
 
 fn main() {
-    // Hardcoded logging level to Info. Other options are "Off", "Error", "Warn", "Debug" and "Trace"
-    // TODO: Make it possible to specify logging level from config
-    simple_logging::log_to(io::stdout(), LevelFilter::Info);
+    if CONFIG.log().to_file() {
+        let log = CONFIG.log();
+        create_dir_all(log.path().as_path()).expect(&format!("Failed to create the directory '{}'", log.path().to_str().unwrap()));
+        simple_logging::log_to_file(log.path().as_path(), log.level());
+    } else {
+        simple_logging::log_to(io::stdout(), CONFIG.log().level());
+    }
 
     // Init Plugin Manager
     let mut plugin_manager = PluginManager::new();
 
-    info!("Looking for plugins in the folder {:?}", DEFAULT.plugin_path());
+    info!("Looking for plugins in the folder {:?}", CONFIG.plugin_path());
     for path in misc::find_plugins() {
         plugin_manager.load_plugin(path);
     }
@@ -40,7 +44,7 @@ fn main() {
     // Init Slack Bot Handler
     let mut handler = MyHandler::new();
 
-    
+
     plugin_api_v1(&plugin_manager, &mut handler);
 
     match handler.init() {

@@ -1,4 +1,4 @@
-use config::DEFAULT;
+use config::CONFIG;
 use lib::{Symbol, Library, Result};
 use template;
 use std::ffi::OsStr;
@@ -49,10 +49,10 @@ impl PluginManager {
         // makes the first call after api object is loaded. This is the only call there the object can be modified my the plugin itself
         (&mut obj).on_plugin_load(
             template::plugin_api_v1::Slack {
-                api_token: DEFAULT.slack.api_token.clone(),
-                admin_api_token: DEFAULT.slack.admin_api_token.clone()
+                api_token: CONFIG.slack.api_token.clone(),
+                admin_api_token: CONFIG.slack.admin_api_token.clone()
             },
-            DEFAULT.plugin_config_path().clone()
+            CONFIG.plugin_config_path().clone()
         );
 
         // Both the api object pointer and the Library object are saved for later use.

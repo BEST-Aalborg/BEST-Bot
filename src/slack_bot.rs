@@ -4,7 +4,7 @@ use template::slack;
 use template::slack::{Event, RtmClient, Message};
 use template::plugin_api_v1;
 
-use config::DEFAULT;
+use config::CONFIG;
 use std::collections::BTreeMap;
 
 use plugin_manager::PluginTypeV1;
@@ -39,7 +39,7 @@ impl MyEventHandler for MyHandler {
 
     /// Login to Slack and start The Slack Bot
     fn init(&mut self) -> Result<(), slack::Error> {
-        RtmClient::login_and_run::<MyHandler>(&DEFAULT.slack.api_token, self)
+        RtmClient::login_and_run::<MyHandler>(&CONFIG.slack.api_token, self)
     }
 
     /// Add a reference of the plugin to the different events lists that to plugin subscripted to 
