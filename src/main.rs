@@ -8,27 +8,32 @@ extern crate libloading as lib;
 #[macro_use]
 extern crate log;
 extern crate simple_logging;
-use std::io;
-
 mod config;
+
 use config::CONFIG;
 mod misc;
 
 mod plugin_manager;
-use plugin_manager::*;
 
+use plugin_manager::*;
 mod slack_bot;
+
 use slack_bot::MyHandler;
 use slack_bot::MyEventHandler;
 
+use std::io;
 use std::process::exit;
 use std::fs::create_dir_all;
+
+use template::slack::Error as sError;
 
 fn main() {
     if CONFIG.log().to_file() {
         let log = CONFIG.log();
-        create_dir_all(log.path().as_path()).expect(&format!("Failed to create the directory '{}'", log.path().to_str().unwrap()));
-        simple_logging::log_to_file(log.path().as_path(), log.level());
+        let mut path = log.path();
+        create_dir_all(path.as_path()).expect(&format!("Failed to create the directory '{}'", path.to_str().unwrap()));
+        path.push("BEST-Bot.log");
+        simple_logging::log_to_file(path.as_path(), log.level());
     } else {
         simple_logging::log_to(io::stdout(), CONFIG.log().level());
     }
@@ -47,10 +52,17 @@ fn main() {
 
     plugin_api_v1(&plugin_manager, &mut handler);
 
-    match handler.init() {
-        Ok(_) => exit(0),
-        Err(e) => {
-            error!("{}", e);
+
+    let _loop = true;
+    while _loop {
+        match handler.init() {
+            Ok(_) => exit(0),
+            Err(error) => {
+                match error {
+                    sError::WebSocket(ws_error) => warn!("WebSocket -> '{:?}'", ws_error),
+                    _ => error!("Unknown -> '{:?}'", error)
+                }
+            }
         }
     }
 }
