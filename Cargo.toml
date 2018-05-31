@@ -11,8 +11,9 @@ serde_json = "*"
 lazy_static = "*"
 log = "*"
 simple-logging = "*"
+libloading = "*"
+thread-id = "*"
 
 easy_toml_config = { git = "https://github.com/BEST-Aalborg/easy_toml_config" }
 template = { git = "https://github.com/BEST-Aalborg/BEST-Bot_template" }
 
-libloading = "*"

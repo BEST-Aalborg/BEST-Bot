@@ -1,8 +1,6 @@
 extern crate easy_toml_config;
 use self::easy_toml_config::*;
 
-use template::plugin_api_v1::Slack;
-
 use std::path::{PathBuf};
 use std::fs::File;
 use std::env::home_dir;
@@ -38,10 +36,29 @@ pub struct Config {
     log: Option<Log>,
 }
 
+/// Struct for handling Slack keys
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct Slack {
+    /// The token are meant to be from a Slack Bot, but can also be from a normal user.
+    /// Look in to Legacy Tokens on api.slack.com
+    pub api_token: String,
+
+    /// The token have to be from a normal user with admin privileges.
+    /// Look in to Legacy Tokens on api.slack.com to figure out have to generate the token.
+    pub admin_api_token: String,
+
+    /// The token is from the app Incoming WebHooks.
+    pub incoming_webhooks_token: Option<String>,
+
+    /// The token is from the app Outcoming WebHooks.
+    pub outgoing_webhooks_token: Option<String>,
+}
+
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Log {
     level: Option<String>,
     to_file: Option<bool>,
+    to_terminal: Option<bool>,
     log_path: Option<String>,
 }
 
@@ -97,9 +114,15 @@ impl Log {
             None => LevelFilter::Info,
         }
     }
+
     pub fn to_file(&self) -> bool {
-        self.to_file.unwrap_or(true)
+        self.to_file.unwrap_or(false)
     }
+
+    pub fn to_terminal(&self) -> bool {
+        self.to_terminal.unwrap_or(true)
+    }
+
     pub fn path(&self) -> PathBuf {
         let mut log_path = home_dir().unwrap();
         if self.log_path.is_none() {
@@ -136,10 +159,13 @@ fn config_template() -> Config {
         slack: Slack {
             api_token: "zzzz-xxxxxxxxxxxx-yyyyyyyyyyyyyyyyyyyyyyyy".to_string(),
             admin_api_token: "zzzz-xxxxxxxxxxx-yyyyyyyyyyy-aaaaaaaaaaaa-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".to_string(),
+            incoming_webhooks_token: None,
+            outgoing_webhooks_token: None,
         },
         log: Some(Log {
             level: Some(String::from("info")),
-            to_file: Some(true),
+            to_file: Some(false),
+            to_terminal: Some(true),
             log_path: None,
         }),
     }
