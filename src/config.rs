@@ -20,7 +20,7 @@ lazy_static! {
 /// Reads the config file
 fn read_config(config_file: &str, config: Config) -> Config {
     use std::io::Read;
-    let mut config_file = init(config_file, config);
+    let mut config_file = init(config_file, &config).unwrap();
 
     let mut data = String::new();
     config_file.read_to_string(&mut data);
@@ -67,7 +67,7 @@ impl Config {
     pub fn plugin_path(&self) -> PathBuf {
         let mut plugin_path = home_dir().unwrap();
         if self.plugin_path.is_none() {
-            plugin_path.push(get_config_dir());
+            plugin_path.push(get_config_dir().unwrap());
             plugin_path.push("libs");
             return plugin_path;
         } else {
@@ -80,7 +80,7 @@ impl Config {
     pub fn plugin_config_path(&self) -> PathBuf {
         let mut plugin_config_path = home_dir().unwrap();
         if self.plugin_config_path.is_none() {
-            plugin_config_path.push(get_config_dir());
+            plugin_config_path.push(get_config_dir().unwrap());
             plugin_config_path.push("plugins");
             return plugin_config_path;
         } else {
@@ -126,7 +126,7 @@ impl Log {
     pub fn path(&self) -> PathBuf {
         let mut log_path = home_dir().unwrap();
         if self.log_path.is_none() {
-            log_path.push(get_config_dir());
+            log_path.push(get_config_dir().unwrap());
             log_path.push("log");
             return log_path;
         } else {
@@ -140,7 +140,7 @@ impl Log {
 impl WriteConfig for Config {
     fn write(&self) {
         use std::io::Write;
-        let path_config_file = path_config_file(CONFIG_FILE);
+        let path_config_file = path_config_file(CONFIG_FILE).unwrap();
 
         let mut config_file = File::create(&path_config_file).expect(&format!("Failed at creating a template config file '{}'", &path_config_file.to_str().unwrap()));
 
@@ -154,8 +154,8 @@ impl WriteConfig for Config {
 /// Create a example/default configuration
 fn config_template() -> Config {
     Config {
-        plugin_path: Some(String::from(format!("{}/libs", get_config_dir()))),
-        plugin_config_path: Some(String::from(format!("{}/plugins", get_config_dir()))),
+        plugin_path: Some(String::from(format!("{}/libs", get_config_dir().unwrap()))),
+        plugin_config_path: Some(String::from(format!("{}/plugins", get_config_dir().unwrap()))),
         slack: Slack {
             api_token: "zzzz-xxxxxxxxxxxx-yyyyyyyyyyyyyyyyyyyyyyyy".to_string(),
             admin_api_token: "zzzz-xxxxxxxxxxx-yyyyyyyyyyy-aaaaaaaaaaaa-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".to_string(),
